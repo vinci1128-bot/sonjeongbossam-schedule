@@ -193,6 +193,25 @@
     border-radius:20px;padding:4px 6px 4px 10px;font-size:12px;color:var(--text);
   }
   .date-chip button{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:12px;padding:2px;}
+  .off-hint-text{font-weight:400;color:var(--text-muted);}
+  .time-window-list{display:flex;flex-direction:column;gap:4px;}
+  .time-window-row{display:flex;align-items:center;gap:8px;padding:5px 2px;}
+  .time-window-row.off{opacity:.6;}
+  .tw-day{width:22px;font-size:13px;font-weight:700;flex-shrink:0;}
+  .tw-off-hint{font-size:12px;color:var(--text-muted);}
+  .tw-input{flex:1;padding:6px 8px;border:1px solid var(--border);border-radius:8px;background:var(--bg);font-size:13px;}
+  .tw-clear{background:none;border:none;color:var(--text-muted);font-size:12px;cursor:pointer;padding:4px;flex-shrink:0;}
+  .desired-days-row{display:flex;align-items:center;gap:8px;}
+  .dd-input{width:64px;padding:7px 8px;border:1px solid var(--border);border-radius:8px;background:var(--bg);font-size:14px;text-align:center;}
+  .dd-note{font-size:11.5px;color:var(--text-muted);margin:6px 0 0;line-height:1.5;}
+
+  /* easter egg: gold ring for VIP employees */
+  .gold-vip{
+    border:2px solid #d4af37 !important;
+    box-shadow:0 0 0 2px rgba(212,175,55,.28), 0 0 8px rgba(212,175,55,.45) !important;
+  }
+  .dot.gold-vip{border:1.5px solid #d4af37;box-shadow:0 0 3px rgba(212,175,55,.8) !important;}
+  .p-slot.p-vip{color:#a5790a;font-weight:800;}
 
   /* schedule tab */
   .schedule-toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
@@ -314,7 +333,7 @@
   </section>
 
   <section id="tab-conditions" class="tab-panel">
-    <p class="section-title">근무조건 관리</p>
+    <p class="section-title">시간표</p>
     <div class="wt-toggle" id="wtToggle">
       <button data-wt="weekday" class="active">평일</button>
       <button data-wt="weekend">주말</button>
@@ -335,7 +354,7 @@
   </section>
 
   <section id="tab-daysoff" class="tab-panel">
-    <p class="section-title">휴무 관리</p>
+    <p class="section-title">근무조건</p>
     <div id="daysOffList"></div>
   </section>
 
@@ -374,9 +393,9 @@
           <strong>👥 직원 관리</strong> — 직원 이름과 홀/주방 근무 가능 여부를 등록하세요. 직원은 입사·퇴사에 따라 언제든 추가하거나 삭제할 수 있고, 다른 탭에도 자동으로 반영됩니다.
         </li>
         <li>
-          <strong>🗂️ 근무조건 관리</strong> — 평일/주말 각 출근 시간대마다 누가 몇 순위로 근무할지 정합니다.
+          <strong>🗂️ 시간표</strong> — 평일/주말 각 출근 시간대마다 누가 몇 순위로 근무할지 정합니다.
           <ul>
-            <li>1순위 직원이 우선 배정되고, 그날 쉬는 날이면 2순위로 넘어갑니다.</li>
+            <li>1순위 직원이 우선 배정되고, 그날 근무가 안 되는 사람이면 2순위로 넘어갑니다.</li>
             <li>한 순위에 여러 명을 넣으면(<span class="badge badge-optional">균등배분</span>) 그중 이번 달 근무 횟수가 가장 적은 사람이 자동으로 뽑혀 골고루 배분됩니다. 순위 줄의 <strong>+</strong> 버튼으로 같은 순위에 인원을 추가하세요.</li>
             <li><strong>⠿</strong> 손잡이를 드래그하면 순위 순서를 바꿀 수 있습니다.</li>
             <li>순위를 아무도 지정하지 않은 시간대는 근무 가능한 전체 인원 중에서 자동으로 균등 배분됩니다.</li>
@@ -384,7 +403,13 @@
           </ul>
         </li>
         <li>
-          <strong>🌴 휴무 관리</strong> — 매주 같은 요일에 쉬는 직원은 요일 버튼으로, 특정 날짜에만 쉬는 경우는 날짜를 추가해서 지정하세요.
+          <strong>🌴 근무조건</strong> — 직원별로 쉬는 날과 근무 가능 시간대를 세부적으로 정합니다.
+          <ul>
+            <li><strong>매주 고정 휴무</strong>: 요일 버튼으로 매주 쉬는 요일을 지정하세요.</li>
+            <li><strong>지정 휴무일</strong>: 특정 날짜(예: 이번 달 15일, 23일)에만 쉬는 경우 날짜를 추가하세요.</li>
+            <li><strong>요일별 출근 가능 시간</strong>: 예를 들어 주중엔 시간 상관없이 가능하지만 주말엔 15:00 이후에만 가능하다면, 토·일요일 칸에 15:00을 입력하세요. 비워두면 그 요일은 시간 제한이 없습니다.</li>
+            <li><strong>주당 희망 근무일수</strong>: "주 4일"이면 최대값에 4를, "주 3~4일"이면 최소 3 / 최대 4를 입력하세요. 최대값은 자동 생성 시 주간 근무 횟수 상한으로 지켜지고(필수 시간대에 사람이 부족한 경우는 예외), 최소값은 참고용 목표치입니다.</li>
+          </ul>
         </li>
         <li>
           <strong>📅 스케줄</strong> — "이 달 스케줄 자동 생성" 버튼을 누르면 위 설정을 바탕으로 한 달치 스케줄이 채워집니다.
@@ -400,7 +425,7 @@
     <div class="card guide-card">
       <h3>알아두면 좋은 점</h3>
       <ul>
-        <li>직원을 삭제하거나 홀/주방 가능 여부를 바꾸면 근무조건·휴무 설정에도 자동으로 정리되어 반영됩니다.</li>
+        <li>직원을 삭제하거나 홀/주방 가능 여부를 바꾸면 시간표·근무조건 설정에도 자동으로 정리되어 반영됩니다.</li>
         <li>데이터는 이 기기의 브라우저에만 저장됩니다(서버·로그인 없음). 다른 기기에서도 쓰려면 화면 위쪽 <strong>⬇(내보내기)</strong>로 백업 파일을 만들고 다른 기기에서 <strong>⬆(불러오기)</strong>로 불러오세요.</li>
         <li>브라우저 저장 공간을 지우면 데이터가 사라질 수 있으니, 중요한 달은 가끔 백업해두는 것을 권장합니다.</li>
       </ul>
@@ -412,8 +437,8 @@
 
 <nav class="tabbar">
   <button class="tabbtn active" data-tab="employees"><span class="ic">👥</span><span>직원</span></button>
-  <button class="tabbtn" data-tab="conditions"><span class="ic">🗂️</span><span>근무조건</span></button>
-  <button class="tabbtn" data-tab="daysoff"><span class="ic">🌴</span><span>휴무</span></button>
+  <button class="tabbtn" data-tab="conditions"><span class="ic">🗂️</span><span>시간표</span></button>
+  <button class="tabbtn" data-tab="daysoff"><span class="ic">🌴</span><span>근무조건</span></button>
   <button class="tabbtn" data-tab="schedule"><span class="ic">📅</span><span>스케줄</span></button>
   <button class="tabbtn" data-tab="guide"><span class="ic">❓</span><span>안내</span></button>
 </nav>
@@ -496,8 +521,15 @@ function mergeWithDefaults(parsed){
       weekly: (parsed.daysOff && parsed.daysOff.weekly) || {},
       dates: (parsed.daysOff && parsed.daysOff.dates) || {},
     },
+    availability: {
+      startTime: (parsed.availability && parsed.availability.startTime) || {},
+      desiredDays: (parsed.availability && parsed.availability.desiredDays) || {},
+    },
     schedules: parsed.schedules || {},
   };
+}
+function isSpecialEmployee(name){
+  return typeof name === 'string' && (name.includes('지현') || name === '나');
 }
 function load(){
   const raw = localStorage.getItem(STORAGE_KEY);
@@ -514,6 +546,17 @@ function isEmployeeOff(empId, dateISO, dow){
   if (dates.includes(dateISO)) return true;
   return false;
 }
+function isTimeAllowed(empId, dow, slotTime){
+  const perDay = state.availability.startTime[empId];
+  if (!perDay) return true;
+  const start = perDay[dow];
+  if (!start) return true;
+  return slotTime >= start;
+}
+function weekKeyFor(y, m, d, dow){
+  const sunday = new Date(y, m-1, d - dow);
+  return `${sunday.getFullYear()}-${pad2(sunday.getMonth()+1)}-${pad2(sunday.getDate())}`;
+}
 
 function pickBalanced(candidateIds, monthCount){
   let min = Infinity;
@@ -527,7 +570,19 @@ function generateSchedule(ym){
   const monthSchedule = {};
   let unassignedCount = 0;
   const monthCount = {};
+  const weeklyCount = {};
   state.employees.forEach(e=>{ monthCount[e.id] = 0; });
+
+  const bumpWeekly = (empId, weekKey)=>{
+    if (!weeklyCount[empId]) weeklyCount[empId] = {};
+    weeklyCount[empId][weekKey] = (weeklyCount[empId][weekKey] || 0) + 1;
+  };
+  const underWeeklyCap = (empId, weekKey)=>{
+    const max = (state.availability.desiredDays[empId] || {}).max;
+    if (max===undefined || max===null || max==='') return true;
+    const cur = (weeklyCount[empId] && weeklyCount[empId][weekKey]) || 0;
+    return cur < Number(max);
+  };
 
   for (let d=1; d<=daysInMonth; d++){
     const iso = `${ym}-${pad2(d)}`;
@@ -537,29 +592,41 @@ function generateSchedule(ym){
     const slots = state.slots[wt];
     const dayAssignment = {};
     const assignedToday = new Set();
+    const weekKey = weekKeyFor(y, m, d, dow);
+
     for (const slot of slots){
-      const isAvail = (empId)=>{
+      const baseAvail = (empId)=>{
         const emp = state.employees.find(e=>e.id===empId);
         if (!emp) return false;
         if (!emp[slot.type]) return false;
         if (assignedToday.has(empId)) return false;
         if (isEmployeeOff(empId, iso, dow)) return false;
+        if (!isTimeAllowed(empId, dow, slot.time)) return false;
         return true;
       };
+      const isAvailStrict = (empId)=> baseAvail(empId) && underWeeklyCap(empId, weekKey);
+      const isAvailRelaxed = baseAvail;
+
       const tiers = state.priorities[wt][slot.id];
+      const findInTiers = (isAvailFn)=>{
+        for (const tier of tiers){
+          const avail = tier.filter(isAvailFn);
+          if (avail.length) return pickBalanced(avail, monthCount);
+        }
+        return null;
+      };
       let chosen = null;
       if (tiers && tiers.length){
-        for (const tier of tiers){
-          const avail = tier.filter(isAvail);
-          if (avail.length){ chosen = pickBalanced(avail, monthCount); break; }
-        }
+        chosen = findInTiers(isAvailStrict);
+        if (!chosen) chosen = findInTiers(isAvailRelaxed);
       } else {
         // no priority configured for this slot: distribute evenly among everyone eligible
-        const pool = state.employees.filter(e=>isAvail(e.id)).map(e=>e.id);
+        let pool = state.employees.filter(e=>isAvailStrict(e.id)).map(e=>e.id);
+        if (!pool.length) pool = state.employees.filter(e=>isAvailRelaxed(e.id)).map(e=>e.id);
         if (pool.length) chosen = pickBalanced(pool, monthCount);
       }
       dayAssignment[slot.id] = chosen;
-      if (chosen){ assignedToday.add(chosen); monthCount[chosen]++; }
+      if (chosen){ assignedToday.add(chosen); monthCount[chosen]++; bumpWeekly(chosen, weekKey); }
       else if (slot.required) unassignedCount++;
     }
     monthSchedule[iso] = dayAssignment;
@@ -594,7 +661,7 @@ function renderEmployeesTab(){
     return;
   }
   container.innerHTML = state.employees.map(emp=>`
-    <div class="employee-card">
+    <div class="employee-card ${isSpecialEmployee(emp.name)?'gold-vip':''}">
       <input type="color" class="color-input" value="${emp.color}" data-action="editColor" data-emp="${emp.id}">
       <input type="text" class="name-input" value="${emp.name}" data-action="editName" data-emp="${emp.id}">
       <label class="mini-check"><input type="checkbox" data-action="editHall" data-emp="${emp.id}" ${emp.hall?'checked':''}> 홀</label>
@@ -629,7 +696,7 @@ function onCapabilityChange(empId){
   }
 }
 function deleteEmployee(id){
-  if (!confirm('이 직원을 삭제하면 근무조건 우선순위, 휴무 설정, 스케줄에서도 함께 제거됩니다. 계속하시겠습니까?')) return;
+  if (!confirm('이 직원을 삭제하면 시간표 우선순위, 근무조건(휴무·가능시간) 설정, 스케줄에서도 함께 제거됩니다. 계속하시겠습니까?')) return;
   state.employees = state.employees.filter(e=>e.id!==id);
   for (const wt of ['weekday','weekend']){
     for (const slotId in state.priorities[wt]){
@@ -640,6 +707,8 @@ function deleteEmployee(id){
   }
   delete state.daysOff.weekly[id];
   delete state.daysOff.dates[id];
+  delete state.availability.startTime[id];
+  delete state.availability.desiredDays[id];
   for (const ym in state.schedules){
     for (const date in state.schedules[ym]){
       for (const slotId in state.schedules[ym][date]){
@@ -692,7 +761,7 @@ function renderConditionsTab(){
         const emp = state.employees.find(e=>e.id===empId);
         if (!emp) return '';
         return `
-          <span class="tier-chip" data-emp="${empId}">
+          <span class="tier-chip ${isSpecialEmployee(emp.name)?'gold-vip':''}" data-emp="${empId}">
             <span class="chip-dot" style="background:${emp.color}"></span>
             <span class="chip-name">${emp.name}</span>
             <button class="chip-remove" data-action="removeFromTier" data-slot="${slot.id}" data-tier="${tIdx}" data-emp="${empId}">✕</button>
@@ -889,15 +958,20 @@ function renderDaysOffTab(){
   container.innerHTML = state.employees.map(emp=>{
     const weekly = state.daysOff.weekly[emp.id] || [];
     const dates = (state.daysOff.dates[emp.id] || []).slice().sort();
+    const startTimes = state.availability.startTime[emp.id] || {};
+    const dd = state.availability.desiredDays[emp.id] || {};
+    const vip = isSpecialEmployee(emp.name) ? 'gold-vip' : '';
     return `
-    <div class="employee-off-card">
+    <div class="employee-off-card ${vip}">
       <div class="off-card-header"><span class="chip-dot" style="background:${emp.color}"></span><strong>${emp.name}</strong></div>
+
       <div class="off-section">
         <p class="off-label">매주 고정 휴무</p>
         <div class="dow-toggle" data-emp="${emp.id}">
           ${dowLabels.map((l,i)=>`<button class="dow-btn ${weekly.includes(i)?'active':''}" data-dow="${i}">${l}</button>`).join('')}
         </div>
       </div>
+
       <div class="off-section">
         <p class="off-label">지정 휴무일</p>
         <div class="date-off-row">
@@ -907,6 +981,36 @@ function renderDaysOffTab(){
         <div class="date-chips">
           ${dates.length ? dates.map(dt=>`<span class="date-chip">${dt}<button data-action="removeDateOff" data-emp="${emp.id}" data-date="${dt}">✕</button></span>`).join('') : '<span class="empty-hint">없음</span>'}
         </div>
+      </div>
+
+      <div class="off-section">
+        <p class="off-label">요일별 출근 가능 시간 <span class="off-hint-text">(비워두면 시간 제한 없음)</span></p>
+        <div class="time-window-list" data-emp="${emp.id}">
+          ${dowLabels.map((l,i)=>{
+            const isOff = weekly.includes(i);
+            const val = startTimes[i] || '';
+            if (isOff){
+              return `<div class="time-window-row off"><span class="tw-day">${l}</span><span class="tw-off-hint">휴무일</span></div>`;
+            }
+            return `
+              <div class="time-window-row">
+                <span class="tw-day">${l}</span>
+                <input type="time" class="tw-input" data-emp="${emp.id}" data-dow="${i}" value="${val}">
+                <button class="tw-clear" data-action="clearStartTime" data-emp="${emp.id}" data-dow="${i}" title="제한 없음">✕</button>
+              </div>`;
+          }).join('')}
+        </div>
+      </div>
+
+      <div class="off-section">
+        <p class="off-label">주당 희망 근무일수 <span class="off-hint-text">(선택)</span></p>
+        <div class="desired-days-row">
+          <input type="number" min="0" max="7" class="dd-input" data-emp="${emp.id}" data-field="min" placeholder="최소" value="${dd.min!=null?dd.min:''}">
+          <span>~</span>
+          <input type="number" min="0" max="7" class="dd-input" data-emp="${emp.id}" data-field="max" placeholder="최대" value="${dd.max!=null?dd.max:''}">
+          <span class="off-hint-text">일 / 주</span>
+        </div>
+        <p class="dd-note">최대값은 자동 생성 시 주간 근무 횟수 상한으로 지켜지고(필수 시간대에 사람이 부족할 때는 예외), 최소값은 참고용 목표치로 반영됩니다.</p>
       </div>
     </div>`;
   }).join('');
@@ -940,6 +1044,30 @@ function setupDaysOffEvents(){
       const empId = rmBtn.dataset.emp, date = rmBtn.dataset.date;
       state.daysOff.dates[empId] = (state.daysOff.dates[empId]||[]).filter(d=>d!==date);
       save(); renderDaysOffTab();
+      return;
+    }
+    const clearBtn = e.target.closest('[data-action="clearStartTime"]');
+    if (clearBtn){
+      const empId = clearBtn.dataset.emp, dow = clearBtn.dataset.dow;
+      if (state.availability.startTime[empId]) delete state.availability.startTime[empId][dow];
+      save(); renderDaysOffTab();
+    }
+  });
+  list.addEventListener('change', e=>{
+    if (e.target.classList.contains('tw-input')){
+      const empId = e.target.dataset.emp, dow = e.target.dataset.dow;
+      if (!state.availability.startTime[empId]) state.availability.startTime[empId] = {};
+      if (e.target.value) state.availability.startTime[empId][dow] = e.target.value;
+      else delete state.availability.startTime[empId][dow];
+      save();
+      return;
+    }
+    if (e.target.classList.contains('dd-input')){
+      const empId = e.target.dataset.emp, field = e.target.dataset.field;
+      if (!state.availability.desiredDays[empId]) state.availability.desiredDays[empId] = {};
+      const v = e.target.value;
+      state.availability.desiredDays[empId][field] = v==='' ? null : Math.max(0, Math.min(7, Number(v)));
+      save();
     }
   });
 }
@@ -951,7 +1079,7 @@ function renderScheduleTab(){
 
   const legend = document.getElementById('scheduleLegend');
   legend.innerHTML = state.employees.map(e=>`
-    <span class="legend-item"><span class="chip-dot" style="background:${e.color}"></span>${e.name}</span>`).join('');
+    <span class="legend-item"><span class="chip-dot ${isSpecialEmployee(e.name)?'gold-vip':''}" style="background:${e.color}"></span>${e.name}</span>`).join('');
 
   const grid = document.getElementById('calendarGrid');
   grid.innerHTML = '';
@@ -987,7 +1115,7 @@ function renderScheduleTab(){
 
     cell.innerHTML = `
       <div class="day-num">${dayNum}</div>
-      <div class="day-dots">${uniqueEmps.map(e=>`<span class="dot" style="background:${e.color}"></span>`).join('')}</div>
+      <div class="day-dots">${uniqueEmps.map(e=>`<span class="dot ${isSpecialEmployee(e.name)?'gold-vip':''}" style="background:${e.color}"></span>`).join('')}</div>
       ${hasSchedule && hasUnfilled ? '<span class="day-warn">!</span>' : ''}
     `;
     grid.appendChild(cell);
@@ -1009,9 +1137,11 @@ function openDayModal(iso){
     const currentVal = dayAssign[slot.id] || '';
     const options = eligible.map(e=>{
       const off = isEmployeeOff(e.id, iso, dow);
+      const timeBlocked = !isTimeAllowed(e.id, dow, slot.time);
       const dupSlot = slotDefs.find(s2=>s2.id!==slot.id && dayAssign[s2.id]===e.id);
       let tag = '';
       if (off) tag += ' (휴무)';
+      if (timeBlocked) tag += ' (이 시간 불가)';
       if (dupSlot) tag += ' (중복근무)';
       return `<option value="${e.id}" ${currentVal===e.id?'selected':''}>${e.name}${tag}</option>`;
     }).join('');
@@ -1049,7 +1179,7 @@ function buildPrintArea(ym){
   const dowLabels = ['일','월','화','수','목','금','토'];
 
   const legendHtml = state.employees.map(e=>`
-    <span><span class="chip-dot" style="background:${e.color}"></span>${e.name}</span>`).join('');
+    <span><span class="chip-dot ${isSpecialEmployee(e.name)?'gold-vip':''}" style="background:${e.color}"></span>${e.name}</span>`).join('');
 
   const cells = [];
   for (let i=0; i<totalCells; i++){
@@ -1068,7 +1198,7 @@ function buildPrintArea(ym){
       const empId = dayAssign[slot.id];
       const emp = empId ? state.employees.find(e=>e.id===empId) : null;
       const typeKor = slot.type==='kitchen' ? '주방' : '홀';
-      if (emp) return `<div class="p-slot"><span class="p-type">${slot.time} ${typeKor}</span> — ${emp.name}</div>`;
+      if (emp) return `<div class="p-slot ${isSpecialEmployee(emp.name)?'p-vip':''}"><span class="p-type">${slot.time} ${typeKor}</span> — ${emp.name}</div>`;
       if (slot.required) return `<div class="p-slot p-unfilled">${slot.time} ${typeKor} — 미배정</div>`;
       return `<div class="p-slot p-empty">${slot.time} ${typeKor} — 미배정</div>`;
     }).join('');
