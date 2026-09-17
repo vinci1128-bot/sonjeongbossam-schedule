@@ -200,10 +200,15 @@
   .tw-day{width:22px;font-size:13px;font-weight:700;flex-shrink:0;}
   .tw-off-hint{font-size:12px;color:var(--text-muted);}
   .tw-input{flex:1;padding:6px 8px;border:1px solid var(--border);border-radius:8px;background:var(--bg);font-size:13px;}
-  .tw-clear{background:none;border:none;color:var(--text-muted);font-size:12px;cursor:pointer;padding:4px;flex-shrink:0;}
   .desired-days-row{display:flex;align-items:center;gap:8px;}
   .dd-input{width:64px;padding:7px 8px;border:1px solid var(--border);border-radius:8px;background:var(--bg);font-size:14px;text-align:center;}
   .dd-note{font-size:11.5px;color:var(--text-muted);margin:6px 0 0;line-height:1.5;}
+  .details-toggle{
+    width:100%;margin-top:10px;padding:9px 10px;border:1px dashed var(--border);border-radius:10px;
+    background:var(--bg);color:var(--accent);font-size:13px;font-weight:600;cursor:pointer;text-align:center;
+  }
+  .details-wrap{margin-top:4px;}
+  .details-wrap.collapsed{display:none;}
 
   /* easter egg: gold ring for VIP employees */
   .gold-vip{
@@ -405,10 +410,14 @@
         <li>
           <strong>🌴 근무조건</strong> — 직원별로 쉬는 날과 근무 가능 시간대를 세부적으로 정합니다.
           <ul>
-            <li><strong>매주 고정 휴무</strong>: 요일 버튼으로 매주 쉬는 요일을 지정하세요.</li>
-            <li><strong>지정 휴무일</strong>: 특정 날짜(예: 이번 달 15일, 23일)에만 쉬는 경우 날짜를 추가하세요.</li>
-            <li><strong>요일별 출근 가능 시간</strong>: 예를 들어 주중엔 시간 상관없이 가능하지만 주말엔 15:00 이후에만 가능하다면, 토·일요일 칸에 15:00을 입력하세요. 비워두면 그 요일은 시간 제한이 없습니다.</li>
-            <li><strong>주당 희망 근무일수</strong>: "주 4일"이면 최대값에 4를, "주 3~4일"이면 최소 3 / 최대 4를 입력하세요. 최대값은 자동 생성 시 주간 근무 횟수 상한으로 지켜지고(필수 시간대에 사람이 부족한 경우는 예외), 최소값은 참고용 목표치입니다.</li>
+            <li><strong>매주 고정 휴무</strong>: 요일 버튼으로 매주 쉬는 요일을 지정하세요. (기본으로 바로 보이는 항목)</li>
+            <li><strong>지정 휴무일</strong>: 특정 날짜(예: 이번 달 15일, 23일)에만 쉬는 경우 날짜를 추가하세요. (기본으로 바로 보이는 항목)</li>
+            <li>더 세밀한 조건은 <strong>"세부조건" 버튼</strong>을 눌러야 펼쳐집니다 — 평소엔 숨겨져 있어 화면이 복잡해 보이지 않습니다.
+              <ul>
+                <li><strong>요일별 출근 가능 시간</strong>: 예를 들어 주중엔 시간 상관없이 가능하지만 주말엔 15:00 이후에만 가능하다면, 토·일요일 칸에서 15:00을 선택하세요(30분 단위). "제한없음"으로 두면 그 요일은 시간 제한이 없습니다.</li>
+                <li><strong>주당 희망 근무일수</strong>: "주 4일"이면 최대값에 4를, "주 3~4일"이면 최소 3 / 최대 4를 입력하세요. 최대값은 자동 생성 시 주간 근무 횟수 상한으로 지켜지고(필수 시간대에 사람이 부족한 경우는 예외), 최소값은 참고용 목표치입니다.</li>
+              </ul>
+            </li>
           </ul>
         </li>
         <li>
@@ -948,6 +957,11 @@ function setupConditionsEvents(){
 }
 
 /* ---------- days off ---------- */
+const HALF_HOUR_OPTIONS = Array.from({length:48}, (_,i)=>{
+  const h = Math.floor(i/2), mm = (i%2===0) ? '00' : '30';
+  return `${String(h).padStart(2,'0')}:${mm}`;
+});
+let expandedDetails = new Set();
 function renderDaysOffTab(){
   const container = document.getElementById('daysOffList');
   if (!state.employees.length){
@@ -961,6 +975,7 @@ function renderDaysOffTab(){
     const startTimes = state.availability.startTime[emp.id] || {};
     const dd = state.availability.desiredDays[emp.id] || {};
     const vip = isSpecialEmployee(emp.name) ? 'gold-vip' : '';
+    const expanded = expandedDetails.has(emp.id);
     return `
     <div class="employee-off-card ${vip}">
       <div class="off-card-header"><span class="chip-dot" style="background:${emp.color}"></span><strong>${emp.name}</strong></div>
@@ -983,34 +998,43 @@ function renderDaysOffTab(){
         </div>
       </div>
 
-      <div class="off-section">
-        <p class="off-label">요일별 출근 가능 시간 <span class="off-hint-text">(비워두면 시간 제한 없음)</span></p>
-        <div class="time-window-list" data-emp="${emp.id}">
-          ${dowLabels.map((l,i)=>{
-            const isOff = weekly.includes(i);
-            const val = startTimes[i] || '';
-            if (isOff){
-              return `<div class="time-window-row off"><span class="tw-day">${l}</span><span class="tw-off-hint">휴무일</span></div>`;
-            }
-            return `
-              <div class="time-window-row">
-                <span class="tw-day">${l}</span>
-                <input type="time" class="tw-input" data-emp="${emp.id}" data-dow="${i}" value="${val}">
-                <button class="tw-clear" data-action="clearStartTime" data-emp="${emp.id}" data-dow="${i}" title="제한 없음">✕</button>
-              </div>`;
-          }).join('')}
-        </div>
-      </div>
+      <button class="details-toggle" data-action="toggleDetails" data-emp="${emp.id}">
+        ${expanded ? '세부조건 접기 ▴' : '세부조건 (근무 가능 시간 · 희망 근무일수) ▾'}
+      </button>
 
-      <div class="off-section">
-        <p class="off-label">주당 희망 근무일수 <span class="off-hint-text">(선택)</span></p>
-        <div class="desired-days-row">
-          <input type="number" min="0" max="7" class="dd-input" data-emp="${emp.id}" data-field="min" placeholder="최소" value="${dd.min!=null?dd.min:''}">
-          <span>~</span>
-          <input type="number" min="0" max="7" class="dd-input" data-emp="${emp.id}" data-field="max" placeholder="최대" value="${dd.max!=null?dd.max:''}">
-          <span class="off-hint-text">일 / 주</span>
+      <div class="details-wrap ${expanded ? '' : 'collapsed'}">
+        <div class="off-section">
+          <p class="off-label">요일별 출근 가능 시간 <span class="off-hint-text">(30분 단위, 비워두면 시간 제한 없음)</span></p>
+          <div class="time-window-list" data-emp="${emp.id}">
+            ${dowLabels.map((l,i)=>{
+              const isOff = weekly.includes(i);
+              const val = startTimes[i] || '';
+              if (isOff){
+                return `<div class="time-window-row off"><span class="tw-day">${l}</span><span class="tw-off-hint">휴무일</span></div>`;
+              }
+              const options = HALF_HOUR_OPTIONS.map(t=>`<option value="${t}" ${val===t?'selected':''}>${t}</option>`).join('');
+              return `
+                <div class="time-window-row">
+                  <span class="tw-day">${l}</span>
+                  <select class="tw-input" data-emp="${emp.id}" data-dow="${i}">
+                    <option value="" ${!val?'selected':''}>제한없음</option>
+                    ${options}
+                  </select>
+                </div>`;
+            }).join('')}
+          </div>
         </div>
-        <p class="dd-note">최대값은 자동 생성 시 주간 근무 횟수 상한으로 지켜지고(필수 시간대에 사람이 부족할 때는 예외), 최소값은 참고용 목표치로 반영됩니다.</p>
+
+        <div class="off-section">
+          <p class="off-label">주당 희망 근무일수 <span class="off-hint-text">(선택)</span></p>
+          <div class="desired-days-row">
+            <input type="number" min="0" max="7" class="dd-input" data-emp="${emp.id}" data-field="min" placeholder="최소" value="${dd.min!=null?dd.min:''}">
+            <span>~</span>
+            <input type="number" min="0" max="7" class="dd-input" data-emp="${emp.id}" data-field="max" placeholder="최대" value="${dd.max!=null?dd.max:''}">
+            <span class="off-hint-text">일 / 주</span>
+          </div>
+          <p class="dd-note">최대값은 자동 생성 시 주간 근무 횟수 상한으로 지켜지고(필수 시간대에 사람이 부족할 때는 예외), 최소값은 참고용 목표치로 반영됩니다.</p>
+        </div>
       </div>
     </div>`;
   }).join('');
@@ -1046,11 +1070,12 @@ function setupDaysOffEvents(){
       save(); renderDaysOffTab();
       return;
     }
-    const clearBtn = e.target.closest('[data-action="clearStartTime"]');
-    if (clearBtn){
-      const empId = clearBtn.dataset.emp, dow = clearBtn.dataset.dow;
-      if (state.availability.startTime[empId]) delete state.availability.startTime[empId][dow];
-      save(); renderDaysOffTab();
+    const toggleBtn = e.target.closest('[data-action="toggleDetails"]');
+    if (toggleBtn){
+      const empId = toggleBtn.dataset.emp;
+      if (expandedDetails.has(empId)) expandedDetails.delete(empId);
+      else expandedDetails.add(empId);
+      renderDaysOffTab();
     }
   });
   list.addEventListener('change', e=>{
