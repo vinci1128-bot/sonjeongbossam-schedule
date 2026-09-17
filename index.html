@@ -177,6 +177,9 @@
   .home-steps li{font-size:14px;line-height:1.7;color:var(--text);font-weight:600;margin-bottom:4px;}
   .home-ic{font-weight:400;}
   .home-note{font-size:12.5px;color:var(--accent-dark);margin:10px 0 0;line-height:1.6;}
+  .qr-box{display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:14px;padding-top:14px;border-top:1px dashed var(--accent);}
+  .qr-box img{border-radius:10px;background:#fff;padding:8px;border:1px solid var(--border);}
+  .qr-caption{font-size:12px;color:var(--accent-dark);text-align:center;margin:0;}
 
   /* days off tab */
   .employee-off-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:12px;}
@@ -401,6 +404,10 @@
         <li>오른쪽 위 <strong>"추가"</strong> 탭</li>
       </ol>
       <p class="home-note">홈 화면 아이콘으로 열면 주소창 없이 전체화면 앱처럼 실행되고, 입력한 데이터도 그대로 유지됩니다.</p>
+      <div class="qr-box">
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=https%3A%2F%2Fvinci1128-bot.github.io%2Fsonjeongbossam-schedule%2F" alt="사이트 접속 QR코드" width="150" height="150">
+        <p class="qr-caption">다른 직원 폰으로 카메라를 비추면 바로 이 사이트로 연결돼요</p>
+      </div>
     </div>
 
     <div class="card guide-card">
