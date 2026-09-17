@@ -119,17 +119,15 @@
     display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:var(--card);
     border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:8px;
   }
-  .add-slot-form input[type=time],.add-slot-form select{
+  .add-slot-form select{
     padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:var(--bg);
   }
   .add-slot-form label{display:flex;align-items:center;gap:4px;font-size:13px;color:var(--text-muted);}
   .reset-row{text-align:right;margin-bottom:14px;}
   .slot-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px;margin-bottom:12px;}
   .slot-card-header{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-bottom:10px;}
-  .slot-card-header input[type=time]{
-    border:1px solid var(--border);border-radius:8px;padding:6px 8px;background:var(--bg);font-weight:700;
-  }
   .slot-card-header select{border:1px solid var(--border);border-radius:8px;padding:6px 8px;background:var(--bg);}
+  .slot-card-header select[data-action="editSlotTime"]{font-weight:700;}
   .req-toggle{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--text-muted);}
   .slot-card-header .icon-btn{margin-left:auto;}
   .tier-list{display:flex;flex-direction:column;gap:6px;min-height:8px;margin-bottom:10px;}
@@ -344,7 +342,7 @@
       <button data-wt="weekend">주말</button>
     </div>
     <div class="add-slot-form">
-      <input type="time" id="newSlotTime" value="09:00">
+      <select id="newSlotTime"></select>
       <select id="newSlotType">
         <option value="kitchen">주방</option>
         <option value="hall">홀</option>
@@ -476,6 +474,10 @@ const DEFAULT_WEEKEND_SLOTS = [
   {id:'we7', time:'18:00', type:'hall', required:false},
 ];
 const PALETTE = ['#2f6f5e','#c9701a','#3b6fa0','#a8457a','#7a8f2f','#8a5cc7','#c94f4f','#1b8f8f','#b8862b','#5a6b8f','#c2185b','#558b2f','#6d4c41','#455a64'];
+const HALF_HOUR_OPTIONS = Array.from({length:48}, (_,i)=>{
+  const h = Math.floor(i/2), mm = (i%2===0) ? '00' : '30';
+  return `${String(h).padStart(2,'0')}:${mm}`;
+});
 
 let state = null;
 let currentWT = 'weekday';
@@ -789,7 +791,9 @@ function renderConditionsTab(){
       <div class="slot-card">
         <div class="slot-card-header">
           <span class="badge badge-${slot.type}">${slot.type==='kitchen'?'주방':'홀'}</span>
-          <input type="time" value="${slot.time}" data-action="editSlotTime" data-slot="${slot.id}">
+          <select data-action="editSlotTime" data-slot="${slot.id}">
+            ${HALF_HOUR_OPTIONS.map(t=>`<option value="${t}" ${slot.time===t?'selected':''}>${t}</option>`).join('')}
+          </select>
           <select data-action="editSlotType" data-slot="${slot.id}">
             <option value="kitchen" ${slot.type==='kitchen'?'selected':''}>주방</option>
             <option value="hall" ${slot.type==='hall'?'selected':''}>홀</option>
@@ -849,6 +853,9 @@ function openTierAddModal(slotId, tierIdx){
   });
 }
 function setupConditionsEvents(){
+  const newSlotTimeSelect = document.getElementById('newSlotTime');
+  newSlotTimeSelect.innerHTML = HALF_HOUR_OPTIONS.map(t=>`<option value="${t}" ${t==='09:00'?'selected':''}>${t}</option>`).join('');
+
   document.querySelectorAll('#wtToggle button').forEach(b=>{
     b.addEventListener('click', ()=>{ currentWT = b.dataset.wt; renderConditionsTab(); });
   });
@@ -873,17 +880,16 @@ function setupConditionsEvents(){
 
   const slotList = document.getElementById('slotList');
 
-  slotList.addEventListener('input', e=>{
-    if (e.target.dataset.action!=='editSlotTime') return;
-    const slot = state.slots[currentWT].find(s=>s.id===e.target.dataset.slot);
-    if (!slot) return;
-    slot.time = e.target.value;
-    save();
-  });
   slotList.addEventListener('change', e=>{
     const slotId = e.target.dataset.slot;
     const slot = state.slots[currentWT].find(s=>s.id===slotId);
     if (!slot) return;
+    if (e.target.dataset.action==='editSlotTime'){
+      slot.time = e.target.value;
+      state.slots[currentWT].sort((a,b)=>a.time.localeCompare(b.time));
+      save();
+      renderConditionsTab();
+    }
     if (e.target.dataset.action==='editSlotRequired'){ slot.required = e.target.checked; save(); }
     if (e.target.dataset.action==='editSlotType'){
       slot.type = e.target.value;
@@ -957,10 +963,6 @@ function setupConditionsEvents(){
 }
 
 /* ---------- days off ---------- */
-const HALF_HOUR_OPTIONS = Array.from({length:48}, (_,i)=>{
-  const h = Math.floor(i/2), mm = (i%2===0) ? '00' : '30';
-  return `${String(h).padStart(2,'0')}:${mm}`;
-});
 let expandedDetails = new Set();
 function renderDaysOffTab(){
   const container = document.getElementById('daysOffList');
