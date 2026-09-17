@@ -180,6 +180,19 @@
   .qr-box{display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:14px;padding-top:14px;border-top:1px dashed var(--accent);}
   .qr-box img{border-radius:10px;background:#fff;padding:8px;border:1px solid var(--border);}
   .qr-caption{font-size:12px;color:var(--accent-dark);text-align:center;margin:0;}
+  .guide-intro{font-size:14px;line-height:1.6;color:var(--text);margin:0 0 4px;}
+  .example-box{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:12px;margin:10px 0;pointer-events:none;}
+  .example-tag{
+    display:inline-block;font-size:10.5px;font-weight:700;color:var(--accent);
+    background:var(--accent-light);border-radius:6px;padding:2px 7px;margin-bottom:9px;
+  }
+  .example-arrow{text-align:center;font-size:11.5px;color:var(--text-muted);margin:6px 0;}
+  .example-caption{text-align:center;font-size:11px;color:var(--text-muted);margin:4px 0 0;}
+  .example-caption.warn{color:var(--danger);font-weight:700;}
+  .example-day-row{display:flex;gap:12px;justify-content:center;}
+  .example-day-row .day-cell{width:64px;position:relative;}
+  .guide-card .tier-row,.guide-card .employee-card,.guide-card .dow-toggle{margin-bottom:0;}
+  .guide-mini-note{font-size:12px;color:var(--text-muted);margin:0 0 6px;}
 
   /* days off tab */
   .employee-off-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:12px;}
@@ -415,44 +428,83 @@
       <p>식당 직원들의 <strong>월간 근무 스케줄</strong>을 자동으로 짜주는 도구입니다. 설치나 로그인 없이 이 화면에서 바로 사용하고, 모든 데이터는 지금 이 기기의 브라우저에 저장되어 다음에 열어도 그대로 남아있습니다.</p>
     </div>
 
+    <p class="section-title" style="font-size:14px;color:var(--text-muted);margin:18px 0 4px;">사용 순서 (4단계)</p>
+
     <div class="card guide-card">
-      <h3>사용 순서 (4단계)</h3>
-      <ol class="guide-steps">
-        <li>
-          <strong>👥 직원 관리</strong> — 직원 이름과 홀/주방 근무 가능 여부를 등록하세요. 직원은 입사·퇴사에 따라 언제든 추가하거나 삭제할 수 있고, 다른 탭에도 자동으로 반영됩니다.
-        </li>
-        <li>
-          <strong>🗂️ 시간표</strong> — 평일/주말 각 출근 시간대마다 누가 몇 순위로 근무할지 정합니다.
-          <ul>
-            <li>1순위 직원이 우선 배정되고, 그날 근무가 안 되는 사람이면 2순위로 넘어갑니다.</li>
-            <li>한 순위에 여러 명을 넣으면(<span class="badge badge-optional">균등배분</span>) 그중 이번 달 근무 횟수가 가장 적은 사람이 자동으로 뽑혀 골고루 배분됩니다. 순위 줄의 <strong>+</strong> 버튼으로 같은 순위에 인원을 추가하세요.</li>
-            <li><strong>⠿</strong> 손잡이를 드래그하면 순위 순서를 바꿀 수 있습니다.</li>
-            <li>순위를 아무도 지정하지 않은 시간대는 근무 가능한 전체 인원 중에서 자동으로 균등 배분됩니다.</li>
-            <li>"필수"가 체크된 시간대는 반드시 채워야 하는 자리이고, 시간대 자체도 자유롭게 추가·수정·삭제할 수 있습니다.</li>
-          </ul>
-        </li>
-        <li>
-          <strong>🌴 근무조건</strong> — 직원별로 쉬는 날과 근무 가능 시간대를 세부적으로 정합니다.
-          <ul>
-            <li><strong>매주 고정 휴무</strong>: 요일 버튼으로 매주 쉬는 요일을 지정하세요. (기본으로 바로 보이는 항목)</li>
-            <li><strong>지정 휴무일</strong>: 특정 날짜(예: 이번 달 15일, 23일)에만 쉬는 경우 날짜를 추가하세요. (기본으로 바로 보이는 항목)</li>
-            <li>더 세밀한 조건은 <strong>"세부조건" 버튼</strong>을 눌러야 펼쳐집니다 — 평소엔 숨겨져 있어 화면이 복잡해 보이지 않습니다.
-              <ul>
-                <li><strong>요일별 출근 가능 시간</strong>: 예를 들어 주중엔 시간 상관없이 가능하지만 주말엔 15:00 이후에만 가능하다면, 토·일요일 칸에서 15:00을 선택하세요(30분 단위). "제한없음"으로 두면 그 요일은 시간 제한이 없습니다.</li>
-                <li><strong>주당 희망 근무일수</strong>: "주 4일"이면 최대값에 4를, "주 3~4일"이면 최소 3 / 최대 4를 입력하세요. 최대값은 자동 생성 시 주간 근무 횟수 상한으로 지켜지고(필수 시간대에 사람이 부족한 경우는 예외), 최소값은 참고용 목표치입니다.</li>
-              </ul>
-            </li>
-          </ul>
-        </li>
-        <li>
-          <strong>📅 스케줄</strong> — "이 달 스케줄 자동 생성" 버튼을 누르면 위 설정을 바탕으로 한 달치 스케줄이 채워집니다.
-          <ul>
-            <li>필수 시간대에 배정 가능한 사람이 없으면 그 날짜가 <span style="color:var(--danger);font-weight:700;">빨간색과 느낌표</span>로 표시됩니다. 날짜를 눌러 직접 배정해주세요.</li>
-            <li>날짜를 누르면 시간대별로 드롭다운에서 배정을 수동으로 바꿀 수 있습니다.</li>
-            <li>"🖼️ 이미지로 저장" 버튼을 누르면 완성된 스케줄이 한 장의 PNG 이미지 파일로 저장됩니다. 사진처럼 바로 열어보거나 카카오톡·문자로 공유하기 편합니다.</li>
-          </ul>
-        </li>
-      </ol>
+      <h3>① 👥 직원 관리</h3>
+      <p class="guide-intro">직원 이름과 홀/주방 가능 여부만 등록하면 끝이에요.</p>
+      <div class="example-box">
+        <span class="example-tag">예시</span>
+        <div class="employee-card">
+          <span style="background:#2f6f5e;width:32px;height:32px;border-radius:8px;display:inline-block;flex-shrink:0;"></span>
+          <span style="flex:1;font-weight:600;font-size:15px;">김민수</span>
+          <label class="mini-check"><input type="checkbox" checked disabled> 홀</label>
+          <label class="mini-check"><input type="checkbox" checked disabled> 주방</label>
+        </div>
+      </div>
+      <p class="guide-mini-note">입사·퇴사에 따라 언제든 추가·삭제할 수 있고, 다른 탭에도 자동 반영됩니다.</p>
+    </div>
+
+    <div class="card guide-card">
+      <h3>② 🗂️ 시간표</h3>
+      <p class="guide-intro">각 출근 시간대마다 누가, 몇 순위로 근무할지 정해요.</p>
+      <div class="example-box">
+        <span class="example-tag">예시 — 10:30 주방</span>
+        <div class="tier-row">
+          <span class="drag-handle">⠿</span>
+          <span class="chip-rank">1</span>
+          <div class="tier-chips"><span class="tier-chip"><span class="chip-dot" style="background:#2f6f5e"></span><span class="chip-name">김민수</span></span></div>
+        </div>
+        <div class="example-arrow">↓ 김민수가 쉬는 날이면</div>
+        <div class="tier-row">
+          <span class="drag-handle">⠿</span>
+          <span class="chip-rank">2</span>
+          <div class="tier-chips"><span class="tier-chip"><span class="chip-dot" style="background:#c9701a"></span><span class="chip-name">이영희</span></span><span class="tier-sep">/</span><span class="tier-chip"><span class="chip-dot" style="background:#3b6fa0"></span><span class="chip-name">박서준</span></span></div>
+          <span class="badge badge-optional">균등배분</span>
+        </div>
+      </div>
+      <p class="guide-mini-note">2순위처럼 한 순위에 여러 명을 넣으면 이번 달 근무 횟수가 적은 사람이 자동으로 골고루 뽑힙니다. 순위를 아무도 안 정하면 근무 가능한 전체 인원 중에서 균등 배분돼요. "필수" 체크된 시간대는 꼭 채워야 하는 자리입니다.</p>
+    </div>
+
+    <div class="card guide-card">
+      <h3>③ 🌴 근무조건</h3>
+      <p class="guide-intro">직원별로 쉬는 날과 근무 가능 시간을 정해요.</p>
+      <div class="example-box">
+        <span class="example-tag">예시 — 매주 화·목 휴무</span>
+        <div class="dow-toggle">
+          <button class="dow-btn">일</button><button class="dow-btn">월</button><button class="dow-btn active">화</button><button class="dow-btn">수</button><button class="dow-btn active">목</button><button class="dow-btn">금</button><button class="dow-btn">토</button>
+        </div>
+      </div>
+      <p class="guide-mini-note">매주 고정 휴무 · 지정 휴무일은 기본으로 바로 보여요. "요일별 출근 가능 시간"(30분 단위)이나 "주당 희망 근무일수" 같은 세밀한 조건은 아래 버튼을 눌러야 펼쳐집니다 — 평소엔 화면이 복잡해 보이지 않도록 숨겨둡니다.</p>
+      <div class="example-box">
+        <button class="details-toggle">세부조건 (근무 가능 시간 · 희망 근무일수) ▾</button>
+      </div>
+    </div>
+
+    <div class="card guide-card">
+      <h3>④ 📅 스케줄</h3>
+      <p class="guide-intro">"이 달 스케줄 자동 생성" 버튼 한 번이면 한 달 치가 채워져요.</p>
+      <div class="example-box">
+        <span class="example-tag">예시</span>
+        <div class="example-day-row">
+          <div>
+            <div class="day-cell">
+              <div class="day-num">14</div>
+              <div class="day-dots"><span class="dot" style="background:#2f6f5e"></span><span class="dot" style="background:#c9701a"></span></div>
+            </div>
+            <p class="example-caption">정상 배정</p>
+          </div>
+          <div>
+            <div class="day-cell warn">
+              <div class="day-num">15</div>
+              <div class="day-dots"><span class="dot" style="background:#2f6f5e"></span></div>
+              <span class="day-warn">!</span>
+            </div>
+            <p class="example-caption warn">사람 부족</p>
+          </div>
+        </div>
+      </div>
+      <p class="guide-mini-note">빨간 날짜는 필수 시간대에 배정 가능한 사람이 없다는 뜻이에요. 날짜를 누르면 시간대별로 드롭다운에서 직접 배정할 수 있고, 완성되면 "🖼️ 이미지로 저장"으로 PNG 한 장으로 받아 카카오톡·문자로 바로 공유할 수 있습니다.</p>
     </div>
 
     <div class="card guide-card">
