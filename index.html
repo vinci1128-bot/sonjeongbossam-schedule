@@ -1426,13 +1426,33 @@ async function exportScheduleImage(ym){
     await new Promise(r=>setTimeout(r, 50));
     const canvas = await html2canvas(printArea, { scale:2, backgroundColor:'#ffffff', useCORS:true });
     printArea.classList.remove('render-for-capture');
-    const dataUrl = canvas.toDataURL('image/png');
-    const a = document.createElement('a');
-    a.href = dataUrl;
-    a.download = `손정보쌈_${ym}_스케줄.png`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
+
+    const blob = await new Promise(resolve => {
+      if (canvas.toBlob) canvas.toBlob(b=>resolve(b), 'image/png');
+      else resolve(null);
+    });
+
+    const filename = `손정보쌈_${ym}_스케줄.png`;
+    if (blob){
+      // Blob URLs download far more reliably on iOS Safari than long data: URIs,
+      // which silently fail to download/open once the image gets reasonably large.
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(()=>URL.revokeObjectURL(blobUrl), 60000);
+    } else {
+      const dataUrl = canvas.toDataURL('image/png');
+      const a = document.createElement('a');
+      a.href = dataUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
   } catch(err){
     alert('이미지 생성 중 문제가 발생했습니다. 네트워크 연결을 확인한 뒤 다시 시도해주세요.');
   } finally {
